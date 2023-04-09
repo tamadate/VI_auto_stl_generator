@@ -1,0 +1,79 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2206                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+    default         Euler;
+//    default         steadyState;
+}
+
+gradSchemes
+{
+    default         Gauss linear;
+}
+
+divSchemes
+{
+    default         none;
+
+// for rhoPimpleFoam
+    div(phi,U)      Gauss limitedLinearV 1;
+    turbulence      Gauss limitedLinear 1;
+    energy          bounded Gauss upwind;
+
+// for rhoSimpleFoam
+/*    div(phi,U)      bounded Gauss upwind limited;
+    turbulence      bounded Gauss linearUpwind limited;
+	energy      bounded Gauss linearUpwind limited;*/
+
+
+// Turbulence
+    div(phi,k)      $turbulence;
+    div(phi,omega) $turbulence;
+
+// Energies
+    div(phi,e)      $energy;
+    div(phi,K)      $energy;
+    div(phi,Ekp)    $energy;
+
+    div(phiv,p)     Gauss upwind;	// for rhoPimpleFoam
+    div(phid,p)	    Gauss upwind;
+    div((phi|interpolate(rho)),p)  bounded Gauss upwind;
+    div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
+}
+
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default         linear;
+}
+
+snGradSchemes
+{
+    default         corrected;
+}
+
+wallDist
+{
+	method meshWave;
+}
+
+
+// ************************************************************************* //

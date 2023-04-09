@@ -1,0 +1,121 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  7
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      k;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   uniform 1;
+
+boundaryField
+{
+    inlet
+    {
+		type        turbulentIntensityKineticEnergyInlet;
+		intensity   0.05;
+		value $internalField;
+    }
+    majorOutlet
+    {
+        type            zeroGradient;
+    }
+    minorOutlet
+    {
+        type            zeroGradient;
+    }
+    conversion
+    {
+        type    kqRWallFunction;
+    }
+    conv_to_nozzle
+    {
+        type    kqRWallFunction;
+    }
+    nozzle
+    {
+        type    kqRWallFunction;
+    }
+
+	nozzle_bottom
+    {
+        type    kqRWallFunction;
+    }
+	nozzle_out
+    {
+        type    kqRWallFunction;
+    }
+	major_top
+    {
+        type    kqRWallFunction;
+    }
+	major_side
+    {
+        type    kqRWallFunction;
+    }
+	majorOut_out
+    {
+        type    kqRWallFunction;
+    }
+	majorOut_in
+    {
+        type    kqRWallFunction;
+    }	
+	majorOut_curve						
+    {
+        type    kqRWallFunction;
+    }							
+	major_bottom
+    {
+        type    kqRWallFunction;
+    }
+	recieving_out
+    {
+        type    kqRWallFunction;
+    }
+	recieving_top
+    {
+        type    kqRWallFunction;
+    }
+	recieving
+    {
+        type    kqRWallFunction;
+    }
+	recieving_expand
+    {
+        type    kqRWallFunction;
+    }
+	minor_wall
+    {
+        type    kqRWallFunction;
+    }
+    axis
+    {
+		type symmetryPlane;
+    }
+	topEmptyFaces
+	{
+		type empty;
+	}
+	bottomEmptyFaces
+	{
+		type empty;
+	}
+
+
+ 
+}
+
+
+// ************************************************************************* //

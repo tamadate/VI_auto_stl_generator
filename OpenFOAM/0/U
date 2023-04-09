@@ -1,0 +1,125 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  7
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    location    "0";
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (0 0 0);
+
+boundaryField
+{
+    inlet
+    {
+        type            flowRateInletVelocity;
+        massFlowRate constant 4.16e-06;
+        extrapolateProfile 0;
+		rho	rho;
+        value           uniform (0 0 0);
+    }
+    majorOutlet
+    {
+        type            zeroGradient;
+    }
+    minorOutlet
+    {
+        type            flowRateOutletVelocity;
+        massFlowRate constant 0.208e-6;
+        extrapolateProfile 0;
+		rho	rho;
+        value           uniform (0 0 0);
+    }
+    conversion
+    {
+        type            noSlip;
+    }
+    conv_to_nozzle
+    {
+        type            noSlip;
+    }
+    nozzle
+    {
+        type            noSlip;
+    }
+
+	nozzle_bottom
+    {
+        type            noSlip;
+    }
+	nozzle_out
+    {
+        type            noSlip;
+    }
+	major_top
+    {
+        type            noSlip;
+    }
+	major_side
+    {
+        type            noSlip;
+    }
+	majorOut_out
+    {
+        type            noSlip;
+    }
+	majorOut_in
+    {
+        type            noSlip;
+    }	
+	majorOut_curve
+    {
+        type            noSlip;
+    }								
+	major_bottom
+    {
+        type            noSlip;
+    }
+	recieving_out
+    {
+        type            noSlip;
+    }
+	recieving_top
+    {
+        type            noSlip;
+    }
+	recieving
+    {
+        type            noSlip;
+    }
+	recieving_expand
+    {
+        type            noSlip;
+    }
+	minor_wall
+    {
+        type            noSlip;
+    }
+	axis
+    {
+		type symmetryPlane;
+    }
+	topEmptyFaces
+	{
+		type empty;
+	}
+	bottomEmptyFaces
+	{
+		type empty;
+	}
+}
+
+
+// ************************************************************************* //

@@ -1,0 +1,152 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  7
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      alphat;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [1 -1 -1 0 0 0 0];
+
+internalField   uniform 0;
+
+
+boundaryField
+{
+    inlet
+    {
+        type            calculated;
+        value        uniform 0;
+    }
+	majorOutlet
+    {
+        type            calculated;
+        value        uniform 0;
+    }
+	minorOutlet
+    {
+        type            calculated;
+        value        uniform 0;
+    }
+    conversion
+    {
+        type            compressible::alphatWallFunction;
+        Prt             0.85;
+        value        uniform 0;
+    }
+    conv_to_nozzle
+    {
+        type            compressible::alphatWallFunction;
+        Prt             0.85;
+        value        uniform 0;
+    }
+    nozzle
+    {
+        type            compressible::alphatWallFunction;
+        Prt             0.85;
+        value        uniform 0;
+    }
+
+	nozzle_bottom
+    {
+        type            compressible::alphatWallFunction;
+        Prt             0.85;
+        value        uniform 0;
+    }
+	nozzle_out
+    {
+        type            compressible::alphatWallFunction;
+        Prt             0.85;
+        value        uniform 0;
+    }
+	major_top
+    {
+        type            compressible::alphatWallFunction;
+        Prt             0.85;
+        value        uniform 0;
+    }
+	major_side
+    {
+        type            compressible::alphatWallFunction;
+        Prt             0.85;
+        value        uniform 0;
+    }
+	majorOut_out
+    {
+        type            compressible::alphatWallFunction;
+        Prt             0.85;
+        value        uniform 0;
+    }
+	majorOut_in
+    {
+        type            compressible::alphatWallFunction;
+        Prt             0.85;
+        value        uniform 0;
+    }
+	majorOut_curve						
+    {
+        type            compressible::alphatWallFunction;
+        Prt             0.85;
+        value        uniform 0;
+    }
+	major_bottom
+    {
+        type            compressible::alphatWallFunction;
+        Prt             0.85;
+        value        uniform 0;
+    }
+	recieving_out
+    {
+        type            compressible::alphatWallFunction;
+        Prt             0.85;
+        value        uniform 0;
+    }
+	recieving_top
+    {
+        type            compressible::alphatWallFunction;
+        Prt             0.85;
+        value        uniform 0;
+    }
+	recieving
+    {
+        type            compressible::alphatWallFunction;
+        Prt             0.85;
+        value        uniform 0;
+    }
+	recieving_expand
+    {
+        type            compressible::alphatWallFunction;
+        Prt             0.85;
+        value        uniform 0;
+    }
+	minor_wall
+    {
+        type            compressible::alphatWallFunction;
+        Prt             0.85;
+        value        uniform 0;
+    }
+    axis
+    {
+		type symmetryPlane;
+    }
+	topEmptyFaces
+	{
+		type empty;
+	}
+	bottomEmptyFaces
+	{
+		type empty;
+	}
+}
+
+
+// ************************************************************************* //
