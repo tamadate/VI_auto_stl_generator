@@ -1,0 +1,302 @@
+### This code generate virtual impactor geometroy with "stl" extention
+### First version was created Apr/1/2023 || Final editing Apr/9/2023
+### Edited by Dr. Tomoya Tamadate || University of Minnesota & Kanazawa University
+### Tested with Linux Mint 20.3 Cinnamon and FreeCAD 0.20.1
+
+## You can set all parameters here (see ...)
+import math
+import numpy as np
+W=0.014*25.4
+jetDistance=W*2 # 2W
+inletRadius=2
+inletAngle=30.5/180.0*math.pi	#30deg
+nozzleRadius=W*0.5	# 0.5W
+curveInletNozzle=nozzleRadius	
+nozzleLength=nozzleRadius*10	# 5W
+nozzleThickness=nozzleRadius
+nozzleOutAngle=30/180.0*math.pi
+majorCavityTop=4*W	# 4W
+majorCavitySize=3
+majorCavityBottom=3*W	#3W
+majorCavityOutletLenght=4
+majorCavityOutletWidth=1
+recievingTubeOutAngle=30/180.0*math.pi
+recievingTubeThickness=nozzleRadius
+curveMajorOutlet=majorCavityOutletWidth
+recievingRadius=nozzleRadius*1.4
+curveRecieving=0.5*W	#0.5W
+recievingLength=nozzleRadius*2	#2w
+recievingDownAngle=30/180.0*math.pi	#30deg
+recievingDownRadius=recievingRadius*3
+recievingDownLength=recievingDownRadius*4
+
+expansion=True
+nface=20
+
+dir="/home/tama3rdgen//CFD_sub_projects/newDesign/" 	# working directory
+saveAs=dir+"testDesign.FCStd"			# file name
+
+### Open and save as ~/CFD_sub_projects/newDesign/testDesign.FCStd
+exec(open('/usr/share/freecad/Mod/Start/StartPage/LoadNew.py').read())
+App.setActiveDocument("Unnamed")
+App.ActiveDocument=App.getDocument("Unnamed")
+App.getDocument("Unnamed").saveAs(saveAs) 
+
+### Preparation of sketching (set plane)
+Gui.activateWorkbench("PartDesignWorkbench")
+App.activeDocument().addObject('PartDesign::Body','Body')
+Gui.activateView('Gui::View3DInventor', True)
+Gui.activeView().setActiveObject('pdbody', App.activeDocument().Body)
+App.activeDocument().Body.newObject('Sketcher::SketchObject','Sketch')
+App.activeDocument().Sketch.Support = (App.activeDocument().XY_Plane, [''])
+App.activeDocument().Sketch.MapMode = 'FlatFace'
+App.ActiveDocument.recompute()
+Gui.activeDocument().setEdit('Sketch')
+Gui.activateWorkbench('SketcherWorkbench')
+import PartDesignGui
+
+### Draw sketching
+if(curveRecieving*recievingTubeThickness*2<recievingTubeThickness*recievingTubeThickness):
+  print("error")
+
+#inlet
+r0=App.Vector(0,0,0)
+r1=App.Vector(inletRadius,0,0)
+App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
+r0=App.Vector(r1[0],r1[1],r1[2])
+
+#inlet conversion
+r1[0]=(1-math.cos(inletAngle))*curveInletNozzle+nozzleRadius
+r1[1]=-(inletRadius-r1[0])/math.tan(inletAngle)
+App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
+r0=App.Vector(r1[0],r1[1],r1[2])
+
+#inlet conversion to nozzle curve
+r1[0]=nozzleRadius
+r1[1]=r0[1]-math.sin(inletAngle)*curveInletNozzle
+center=r1+App.Vector(curveInletNozzle,0,0)
+App.ActiveDocument.Sketch.addGeometry(Part.ArcOfCircle(Part.Circle(center,App.Vector(0,0,1),curveInletNozzle),math.pi-inletAngle,math.pi),False)
+r0=App.Vector(r1[0],r1[1],r1[2])
+
+#nozzle
+r1=r0-App.Vector(0,nozzleLength,0)
+App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
+r0=App.Vector(r1[0],r1[1],r1[2])
+
+#nozzle bottome face
+r1=r0+App.Vector(nozzleThickness,0,0)
+App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
+r0=App.Vector(r1[0],r1[1],r1[2])
+
+#outsize of the nozzle
+r1=r0+App.Vector(majorCavityTop/math.tan(nozzleOutAngle),majorCavityTop,0)
+App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
+r0=App.Vector(r1[0],r1[1],r1[2])
+
+#top of major cavity
+r1=r0+App.Vector(majorCavitySize,0,0)
+App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
+r0=App.Vector(r1[0],r1[1],r1[2])
+
+#side wall of major cavity
+r1=r0-App.Vector(0,majorCavityTop+jetDistance+majorCavityBottom,0)
+App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
+r0=App.Vector(r1[0],r1[1],r1[2])
+
+#outlet wall (outside)
+r1=r0-App.Vector(0,majorCavityOutletLenght,0)
+App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
+r0=App.Vector(r1[0],r1[1],r1[2])
+
+#major outlet
+r1=r0-App.Vector(majorCavityOutletWidth,0,0)
+App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
+r0=App.Vector(r1[0],r1[1],r1[2])
+
+#outlet wall (inside)
+r1=r0+App.Vector(0,majorCavityOutletLenght-curveMajorOutlet,0)
+App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
+r0=App.Vector(r1[0],r1[1],r1[2])
+
+#curvature major outlet to major cavity bottom
+r1=r0+App.Vector(-curveMajorOutlet,curveMajorOutlet,0)
+center=r0-App.Vector(curveMajorOutlet,0,0)
+App.ActiveDocument.Sketch.addGeometry(Part.ArcOfCircle(Part.Circle(center,App.Vector(0,0,1),curveMajorOutlet),0,math.pi*0.5),False)
+r0=App.Vector(r1[0],r1[1],r1[2])
+
+#bottom of major cavity
+r1=App.Vector(recievingTubeThickness+recievingRadius+majorCavityBottom*math.tan(recievingTubeOutAngle),r0[1],0)
+App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
+r0=App.Vector(r1[0],r1[1],r1[2])
+
+#outside of recieving tube
+r1=r0+App.Vector(-majorCavityBottom*math.tan(recievingTubeOutAngle),majorCavityBottom,0)
+App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
+r0=App.Vector(r1[0],r1[1],r1[2])
+
+#recieving tube top surface (curved)
+th=math.asin((curveRecieving-recievingTubeThickness)/curveRecieving)
+h=curveRecieving*math.cos(th)
+r1=r0-App.Vector(recievingTubeThickness,h,0)
+center=r1+App.Vector(curveRecieving,0,0)
+angle=math.acos((curveRecieving-recievingTubeThickness)/curveRecieving)
+App.ActiveDocument.Sketch.addGeometry(Part.ArcOfCircle(Part.Circle(center,App.Vector(0,0,1),curveRecieving),math.pi*0.5+th,math.pi),False)
+r0=App.Vector(r1[0],r1[1],r1[2])
+
+#recieving tube
+r1=r0-App.Vector(0,recievingLength,0)
+App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
+r0=App.Vector(r1[0],r1[1],r1[2])
+
+if(expansion):
+	#expansion part at downstream of recieving tube
+	r1=r0+App.Vector(recievingDownRadius-recievingRadius,-(recievingDownRadius-recievingRadius)/math.tan(recievingDownAngle),0)
+	App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
+	r0=App.Vector(r1[0],r1[1],r1[2])
+else:
+	#expansion part at downstream of recieving tube
+	r1=r0+App.Vector(0,-(recievingDownRadius-recievingRadius)/math.tan(recievingDownAngle),0)
+	App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
+	r0=App.Vector(r1[0],r1[1],r1[2])
+	
+#minor outlet side wall
+r1=r0-App.Vector(0,recievingDownLength,0)
+App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
+r0=App.Vector(r1[0],r1[1],r1[2])
+
+#minor outlet
+r1=App.Vector(0,r0[1],r0[2])
+App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
+r0=App.Vector(r1[0],r1[1],r1[2])
+
+#axis
+r1=App.Vector(0,0,0)
+App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
+r0=App.Vector(r1[0],r1[1],r1[2])
+
+Gui.activateWorkbench('PartDesignWorkbench')
+App.getDocument('Unnamed').recompute()
+Gui.getDocument("Unnamed").getObject("Sketch").Visibility=True
+
+print("Sketching done!!!!!!!!!!!!!!")
+
+
+### Extrude sketch (thickness = 0.1 mm)
+# change mode to part
+Gui.activateWorkbench("PartWorkbench")
+import PartDesignGui
+# extrude
+f = FreeCAD.getDocument('Unnamed').addObject('Part::Extrusion', 'Extrude')
+f = App.getDocument('Unnamed').getObject('Extrude')
+f.Base = App.getDocument('Unnamed').getObject('Sketch')
+f.DirMode = "Normal"
+f.DirLink = None
+f.LengthFwd = 0.100000000000000
+f.LengthRev = 0.000000000000000
+f.Solid = True
+f.Reversed = False
+f.Symmetric = False
+f.TaperAngle = 0.000000000000000
+f.TaperAngleRev = 0.000000000000000
+Gui.ActiveDocument.Extrude.ShapeColor=Gui.ActiveDocument.Sketch.ShapeColor
+Gui.ActiveDocument.Extrude.LineColor=Gui.ActiveDocument.Sketch.LineColor
+Gui.ActiveDocument.Extrude.PointColor=Gui.ActiveDocument.Sketch.PointColor
+f.Base.ViewObject.hide()
+App.ActiveDocument.recompute()
+print("Extrude done!!!!!!!!!!!!!!")
+
+### Down-grade part body -> solid -> surface
+Gui.Selection.clearSelection()
+Gui.Selection.addSelection('Unnamed','Extrude')
+# Begin command Std_Workbench
+Gui.activateWorkbench("DraftWorkbench")
+# End command Std_Workbench
+Gui.runCommand('Draft_Downgrade',0)
+_objs_ = Draft.downgrade(FreeCADGui.Selection.getSelection(), delete=True)
+FreeCAD.ActiveDocument.recompute()
+Gui.Selection.clearSelection()
+Gui.Selection.addSelection('Unnamed','Solid')
+# Begin command Std_Workbench
+Gui.activateWorkbench("DraftWorkbench")
+# End command Std_Workbench
+Gui.runCommand('Draft_Downgrade',0)
+_objs_ = Draft.downgrade(FreeCADGui.Selection.getSelection(), delete=True)
+FreeCAD.ActiveDocument.recompute()
+print("Down grade done!!!!!!!!!!!!!!")
+
+
+### Generate mesh
+Gui.Selection.clearSelection()
+# Begin command Std_Workbench
+Gui.activateWorkbench("MeshWorkbench")
+# End command Std_Workbench
+Gui.Selection.addSelection('Unnamed','Face','Face1',3.1981,-4.50908,0.1)
+# Begin command Mesh_FromPartShape
+import MeshPartGui, FreeCADGui
+FreeCADGui.runCommand('MeshPart_Mesher')
+
+import Mesh, Part, PartGui
+import MeshPart
+# End command Mesh_FromPartShape
+__doc__=FreeCAD.getDocument("Unnamed")
+__mesh__=__doc__.addObject("Mesh::Feature","Mesh")
+__part__=__doc__.getObject("Face")
+__shape__=Part.getShape(__part__,"Face1")
+__mesh__.Mesh=MeshPart.meshFromShape(Shape=__shape__, LinearDeflection=0.1, AngularDeflection=0.523599, Relative=False)
+__mesh__.Label="Mesh"
+del __doc__, __mesh__, __part__, __shape__
+
+Gui.Selection.clearSelection()
+Gui.Selection.addSelection('Unnamed','Mesh')
+
+for i in np.arange(1,nface+2):
+	Gui.Selection.clearSelection()
+	### Begin command Std_Workbench
+	Gui.activateWorkbench("MeshWorkbench")
+	### End command Std_Workbench
+	Gui.Selection.addSelection('Unnamed','Face'+"{0:03}".format(i),'Face1',3.1981,-4.50908,0.1)
+	### Begin command Mesh_FromPartShape
+	import MeshPartGui, FreeCADGui
+	FreeCADGui.runCommand('MeshPart_Mesher')
+
+	import Mesh, Part, PartGui
+	import MeshPart
+	### End command Mesh_FromPartShape
+	__doc__=FreeCAD.getDocument("Unnamed")
+	__mesh__=__doc__.addObject("Mesh::Feature","Mesh")
+	__part__=__doc__.getObject("Face"+"{0:03}".format(i))
+	__shape__=Part.getShape(__part__,"Face1")
+	__mesh__.Mesh=MeshPart.meshFromShape(Shape=__shape__, LinearDeflection=0.1, AngularDeflection=0.523599, Relative=False)
+	__mesh__.Label="Mesh"+"{0:03}".format(i)
+	del __doc__, __mesh__, __part__, __shape__
+
+	Gui.Selection.clearSelection()
+	Gui.Selection.addSelection('Unnamed','Mesh')
+
+
+### Export mesh as ast file
+import Mesh
+FreeCAD.ActiveDocument.recompute()
+Gui.Selection.addSelection('Unnamed','Mesh')
+print(dir+str(0)+'.ast')
+Mesh.export(FreeCADGui.Selection.getSelection(), dir+str(0)+'.ast')
+
+for i in np.arange(1,nface):
+	Gui.Selection.clearSelection()
+	Gui.Selection.addSelection('Unnamed','Mesh'+"{0:03}".format(i))
+	Mesh.export(FreeCADGui.Selection.getSelection(), dir+str(i)+'.ast')
+
+
+### Connect & edit .ast files
+
+faceName=["inlet","conversion","conv_to_nozzle","nozzle","nozzle_bottom","nozzle_out","major_top","major_side","majorOut_out","majorOutlet","majorOut_in","majorOut_curve",\
+		"major_bottom","recieving_out","recieving_top","recieving","recieving_expand","minor_wall","minorOutlet","axis","bottomEmptyFaces","topEmptyFaces"]
+
+import os
+for i in np.arange(nface):
+	os.system("sed -i 's/Mesh/"+faceName[i]+"/' "+dir+str(i)+".ast")
+
+os.system("rm "+dir+"VI.stl")
+os.system("cat "+dir+"*ast >> "+dir+"VI.stl")
+os.system("rm "+dir+"*ast")
+
