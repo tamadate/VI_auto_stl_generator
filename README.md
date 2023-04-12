@@ -5,7 +5,7 @@ This is a stl file generator for virtual impactor CFD simulation with OpenFOAM. 
 ## 2. Installation
 We assume you are working with Linux.
 ### 2.1 Install FreeCAD
-This code requires the relatively new version of FreeCAD (see [LINK](https://wiki.freecad.org/Installing_on_Linux)).  When you use the apt install command, it may install older version but we checked this code does not works with the versions FreeCAD 0.18.x.  We recommend to install newer version than FreeCAD 0.20.1.
+This code requires the FreeCAD (see [LINK](https://wiki.freecad.org/Installing_on_Linux)) software.  When you use the apt install command, it may install older version but we checked this code does not works with the versions FreeCAD 0.18.x.  We recommend to install newer version than FreeCAD 0.20.1.
 ### 2.2 Download this code
 
 ## 3. Documentation (usage)

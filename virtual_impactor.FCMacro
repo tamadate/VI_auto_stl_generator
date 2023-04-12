@@ -1,6 +1,6 @@
 ### This code generate virtual impactor geometroy with "stl" extention
 ### First version was created Apr/1/2023 || Final editing Apr/9/2023
-### Edited by Dr. Tomoya Tamadate || University of Minnesota & Kanazawa University
+### Edited by Dr. Tomoya Tamadate || University of Minnesota 
 ### Tested with Linux Mint 20.3 Cinnamon and FreeCAD 0.20.1
 
 ## You can set all parameters here (see ...)
@@ -9,10 +9,10 @@ import numpy as np
 W=0.014*25.4
 jetDistance=W*2 # 2W
 inletRadius=2
-inletAngle=30.5/180.0*math.pi	#30deg
+inletAngle=30/180.0*math.pi	#30deg
 nozzleRadius=W*0.5	# 0.5W
 curveInletNozzle=nozzleRadius	
-nozzleLength=nozzleRadius*10	# 5W
+nozzleLength=nozzleRadius*5	# 5W
 nozzleThickness=nozzleRadius
 nozzleOutAngle=30/180.0*math.pi
 majorCavityTop=4*W	# 4W
@@ -30,10 +30,14 @@ recievingDownAngle=30/180.0*math.pi	#30deg
 recievingDownRadius=recievingRadius*3
 recievingDownLength=recievingDownRadius*4
 
-expansion=True
-nface=20
+firstStageRadius=5	
+firstStageAngle=30/180.0*math.pi	#30deg
+firstStageHeight=inletRadius*2
 
-dir="/home/tama3rdgen//CFD_sub_projects/newDesign/" 	# working directory
+expansion=False
+nface=22
+
+dir="/home/tama3rdgen/CFD_sub_projects/newDesign/" 	# working directory
 saveAs=dir+"testDesign.FCStd"			# file name
 
 ### Open and save as ~/CFD_sub_projects/newDesign/testDesign.FCStd
@@ -59,15 +63,26 @@ import PartDesignGui
 if(curveRecieving*recievingTubeThickness*2<recievingTubeThickness*recievingTubeThickness):
   print("error")
 
-#inlet
+#inlet 1st stage
 r0=App.Vector(0,0,0)
-r1=App.Vector(inletRadius,0,0)
+r1=App.Vector(firstStageRadius,0,0)
+App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
+r0=App.Vector(r1[0],r1[1],r1[2])
+
+#inlet 1st stage conversion
+dR=firstStageRadius-inletRadius
+r1=r0-App.Vector(dR,dR/math.tan(firstStageAngle),0)
+App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
+r0=App.Vector(r1[0],r1[1],r1[2])
+
+#inlet 1st stage straight part
+r1=r0-App.Vector(0,firstStageHeight,0)
 App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
 r0=App.Vector(r1[0],r1[1],r1[2])
 
 #inlet conversion
 r1[0]=(1-math.cos(inletAngle))*curveInletNozzle+nozzleRadius
-r1[1]=-(inletRadius-r1[0])/math.tan(inletAngle)
+r1[1]=r0[1]-(inletRadius-r1[0])/math.tan(inletAngle)
 App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
 r0=App.Vector(r1[0],r1[1],r1[2])
 
@@ -289,7 +304,7 @@ for i in np.arange(1,nface):
 
 ### Connect & edit .ast files
 
-faceName=["inlet","conversion","conv_to_nozzle","nozzle","nozzle_bottom","nozzle_out","major_top","major_side","majorOut_out","majorOutlet","majorOut_in","majorOut_curve",\
+faceName=["inlet","firstConv","firstStraight","conversion","conv_to_nozzle","nozzle","nozzle_bottom","nozzle_out","major_top","major_side","majorOut_out","majorOutlet","majorOut_in","majorOut_curve",\
 		"major_bottom","recieving_out","recieving_top","recieving","recieving_expand","minor_wall","minorOutlet","axis","bottomEmptyFaces","topEmptyFaces"]
 
 import os
