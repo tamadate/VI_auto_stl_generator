@@ -9,7 +9,7 @@ import numpy as np
 W=0.014*25.4
 jetDistance=W*2 # 2W
 inletRadius=2
-inletAngle=30/180.0*math.pi	#30deg
+inletAngle=45/180.0*math.pi	#30deg
 nozzleRadius=W*0.5	# 0.5W
 curveInletNozzle=nozzleRadius	
 nozzleLength=nozzleRadius*5	# 5W
@@ -30,16 +30,17 @@ recievingDownAngle=30/180.0*math.pi	#30deg
 recievingDownRadius=recievingRadius*3
 recievingDownLength=recievingDownRadius*4
 
-firstStageRadius=5	
-firstStageAngle=30/180.0*math.pi	#30deg
-firstStageHeight=inletRadius*2
-
 expansion=False
-nface=22
 
-dir="/home/tama3rdgen/CFD_sub_projects/newDesign/" 	# working directory
+secondstage=True
+interRadius=1	
+firstStageAngle=22.5/180.0*math.pi	
+firstStageHeight=interRadius*1
+
+dir="/home/tama3rdgen/git/VI_auto_stl_generator/" 	# working directory
 saveAs=dir+"testDesign.FCStd"			# file name
 
+#---------------------------------------------------------------------------------------------------------------------------------------------------#
 ### Open and save as ~/CFD_sub_projects/newDesign/testDesign.FCStd
 exec(open('/usr/share/freecad/Mod/Start/StartPage/LoadNew.py').read())
 App.setActiveDocument("Unnamed")
@@ -59,32 +60,44 @@ Gui.activeDocument().setEdit('Sketch')
 Gui.activateWorkbench('SketcherWorkbench')
 import PartDesignGui
 
+import os
+os.system("")
+
+#---------------------------------------------------------------------------------------------------------------------------------------------------#
 ### Draw sketching
 if(curveRecieving*recievingTubeThickness*2<recievingTubeThickness*recievingTubeThickness):
   print("error")
 
+faceName=[]
+
 #inlet 1st stage
 r0=App.Vector(0,0,0)
-r1=App.Vector(firstStageRadius,0,0)
+r1=App.Vector(inletRadius,0,0)
 App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
 r0=App.Vector(r1[0],r1[1],r1[2])
+faceName.append("inlet")
 
-#inlet 1st stage conversion
-dR=firstStageRadius-inletRadius
-r1=r0-App.Vector(dR,dR/math.tan(firstStageAngle),0)
-App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
-r0=App.Vector(r1[0],r1[1],r1[2])
+if(secondstage):
+	#inlet 1st stage conversion
+	dR=inletRadius-interRadius
+	r1=r0-App.Vector(dR,dR/math.tan(firstStageAngle),0)
+	App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
+	r0=App.Vector(r1[0],r1[1],r1[2])
+	faceName.append("firstConv")
 
-#inlet 1st stage straight part
-r1=r0-App.Vector(0,firstStageHeight,0)
-App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
-r0=App.Vector(r1[0],r1[1],r1[2])
+	#inlet 1st stage straight part
+	r1=r0-App.Vector(0,firstStageHeight,0)
+	App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
+	r0=App.Vector(r1[0],r1[1],r1[2])
+	faceName.append("firstStraight")
+
 
 #inlet conversion
 r1[0]=(1-math.cos(inletAngle))*curveInletNozzle+nozzleRadius
-r1[1]=r0[1]-(inletRadius-r1[0])/math.tan(inletAngle)
+r1[1]=r0[1]-(interRadius-r1[0])/math.tan(inletAngle)
 App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
 r0=App.Vector(r1[0],r1[1],r1[2])
+faceName.append("conversion")
 
 #inlet conversion to nozzle curve
 r1[0]=nozzleRadius
@@ -92,62 +105,74 @@ r1[1]=r0[1]-math.sin(inletAngle)*curveInletNozzle
 center=r1+App.Vector(curveInletNozzle,0,0)
 App.ActiveDocument.Sketch.addGeometry(Part.ArcOfCircle(Part.Circle(center,App.Vector(0,0,1),curveInletNozzle),math.pi-inletAngle,math.pi),False)
 r0=App.Vector(r1[0],r1[1],r1[2])
+faceName.append("conv_to_nozzle")
 
 #nozzle
 r1=r0-App.Vector(0,nozzleLength,0)
 App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
 r0=App.Vector(r1[0],r1[1],r1[2])
+faceName.append("nozzle")
 
 #nozzle bottome face
 r1=r0+App.Vector(nozzleThickness,0,0)
 App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
 r0=App.Vector(r1[0],r1[1],r1[2])
+faceName.append("nozzle_bottom")
 
 #outsize of the nozzle
 r1=r0+App.Vector(majorCavityTop/math.tan(nozzleOutAngle),majorCavityTop,0)
 App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
 r0=App.Vector(r1[0],r1[1],r1[2])
+faceName.append("nozzle_out")
 
 #top of major cavity
 r1=r0+App.Vector(majorCavitySize,0,0)
 App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
 r0=App.Vector(r1[0],r1[1],r1[2])
+faceName.append("major_top")
 
 #side wall of major cavity
 r1=r0-App.Vector(0,majorCavityTop+jetDistance+majorCavityBottom,0)
 App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
 r0=App.Vector(r1[0],r1[1],r1[2])
+faceName.append("major_side")
 
 #outlet wall (outside)
 r1=r0-App.Vector(0,majorCavityOutletLenght,0)
 App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
 r0=App.Vector(r1[0],r1[1],r1[2])
+faceName.append("majorOut_out")
 
 #major outlet
 r1=r0-App.Vector(majorCavityOutletWidth,0,0)
 App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
 r0=App.Vector(r1[0],r1[1],r1[2])
+faceName.append("majorOutlet")
 
 #outlet wall (inside)
 r1=r0+App.Vector(0,majorCavityOutletLenght-curveMajorOutlet,0)
 App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
 r0=App.Vector(r1[0],r1[1],r1[2])
+faceName.append("majorOut_in")
 
 #curvature major outlet to major cavity bottom
 r1=r0+App.Vector(-curveMajorOutlet,curveMajorOutlet,0)
 center=r0-App.Vector(curveMajorOutlet,0,0)
 App.ActiveDocument.Sketch.addGeometry(Part.ArcOfCircle(Part.Circle(center,App.Vector(0,0,1),curveMajorOutlet),0,math.pi*0.5),False)
 r0=App.Vector(r1[0],r1[1],r1[2])
+faceName.append("majorOut_curve")
 
 #bottom of major cavity
 r1=App.Vector(recievingTubeThickness+recievingRadius+majorCavityBottom*math.tan(recievingTubeOutAngle),r0[1],0)
 App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
 r0=App.Vector(r1[0],r1[1],r1[2])
+faceName.append("major_bottom")
 
 #outside of recieving tube
 r1=r0+App.Vector(-majorCavityBottom*math.tan(recievingTubeOutAngle),majorCavityBottom,0)
 App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
 r0=App.Vector(r1[0],r1[1],r1[2])
+faceName.append("recieving_out")
 
 #recieving tube top surface (curved)
 th=math.asin((curveRecieving-recievingTubeThickness)/curveRecieving)
@@ -157,11 +182,13 @@ center=r1+App.Vector(curveRecieving,0,0)
 angle=math.acos((curveRecieving-recievingTubeThickness)/curveRecieving)
 App.ActiveDocument.Sketch.addGeometry(Part.ArcOfCircle(Part.Circle(center,App.Vector(0,0,1),curveRecieving),math.pi*0.5+th,math.pi),False)
 r0=App.Vector(r1[0],r1[1],r1[2])
+faceName.append("recieving_top")
 
 #recieving tube
 r1=r0-App.Vector(0,recievingLength,0)
 App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
 r0=App.Vector(r1[0],r1[1],r1[2])
+faceName.append("recieving")
 
 if(expansion):
 	#expansion part at downstream of recieving tube
@@ -173,29 +200,36 @@ else:
 	r1=r0+App.Vector(0,-(recievingDownRadius-recievingRadius)/math.tan(recievingDownAngle),0)
 	App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
 	r0=App.Vector(r1[0],r1[1],r1[2])
-	
+
+faceName.append("recieving_expand")
+
 #minor outlet side wall
 r1=r0-App.Vector(0,recievingDownLength,0)
 App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
 r0=App.Vector(r1[0],r1[1],r1[2])
+faceName.append("minor_wall")
 
 #minor outlet
 r1=App.Vector(0,r0[1],r0[2])
 App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
 r0=App.Vector(r1[0],r1[1],r1[2])
+faceName.append("minorOutlet")
 
 #axis
 r1=App.Vector(0,0,0)
 App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
 r0=App.Vector(r1[0],r1[1],r1[2])
+faceName.append("axis")
 
 Gui.activateWorkbench('PartDesignWorkbench')
 App.getDocument('Unnamed').recompute()
 Gui.getDocument("Unnamed").getObject("Sketch").Visibility=True
+nface=len(faceName)
 
 print("Sketching done!!!!!!!!!!!!!!")
 
 
+#---------------------------------------------------------------------------------------------------------------------------------------------------#
 ### Extrude sketch (thickness = 0.1 mm)
 # change mode to part
 Gui.activateWorkbench("PartWorkbench")
@@ -220,6 +254,7 @@ f.Base.ViewObject.hide()
 App.ActiveDocument.recompute()
 print("Extrude done!!!!!!!!!!!!!!")
 
+#---------------------------------------------------------------------------------------------------------------------------------------------------#
 ### Down-grade part body -> solid -> surface
 Gui.Selection.clearSelection()
 Gui.Selection.addSelection('Unnamed','Extrude')
@@ -239,7 +274,7 @@ _objs_ = Draft.downgrade(FreeCADGui.Selection.getSelection(), delete=True)
 FreeCAD.ActiveDocument.recompute()
 print("Down grade done!!!!!!!!!!!!!!")
 
-
+#---------------------------------------------------------------------------------------------------------------------------------------------------#
 ### Generate mesh
 Gui.Selection.clearSelection()
 # Begin command Std_Workbench
@@ -264,7 +299,7 @@ del __doc__, __mesh__, __part__, __shape__
 Gui.Selection.clearSelection()
 Gui.Selection.addSelection('Unnamed','Mesh')
 
-for i in np.arange(1,nface+2):
+for i in np.arange(1,nface):
 	Gui.Selection.clearSelection()
 	### Begin command Std_Workbench
 	Gui.activateWorkbench("MeshWorkbench")
@@ -288,7 +323,8 @@ for i in np.arange(1,nface+2):
 	Gui.Selection.clearSelection()
 	Gui.Selection.addSelection('Unnamed','Mesh')
 
-
+print("Meshing done!!!!!!!!!!!!!!")
+#---------------------------------------------------------------------------------------------------------------------------------------------------#
 ### Export mesh as ast file
 import Mesh
 FreeCAD.ActiveDocument.recompute()
@@ -303,15 +339,33 @@ for i in np.arange(1,nface):
 
 
 ### Connect & edit .ast files
-
-faceName=["inlet","firstConv","firstStraight","conversion","conv_to_nozzle","nozzle","nozzle_bottom","nozzle_out","major_top","major_side","majorOut_out","majorOutlet","majorOut_in","majorOut_curve",\
-		"major_bottom","recieving_out","recieving_top","recieving","recieving_expand","minor_wall","minorOutlet","axis","bottomEmptyFaces","topEmptyFaces"]
-
 import os
 for i in np.arange(nface):
 	os.system("sed -i 's/Mesh/"+faceName[i]+"/' "+dir+str(i)+".ast")
 
+### Combine ast files
 os.system("rm "+dir+"VI.stl")
 os.system("cat "+dir+"*ast >> "+dir+"VI.stl")
 os.system("rm "+dir+"*ast")
+
+
+#---------------------------------------------------------------------------------------------------------------------------------------------------#
+fout=open(dir+"OpenFOAM/system/meshDict","w")
+with open(dir+"Base/meshDict") as f:
+    lines = [line.rstrip('\n') for line in f]
+    for line in lines:
+        print(line)
+        if(line=="###"):
+            fout.write("{\n\tnewPatchNames\n\t{\n")
+            for fn in faceName:
+                ty="wall"
+                if(fn=="inlet" or fn=="majorOutlet" or fn=="majorOutlet"):
+                      ty="patch"
+                if(fn=="axis"):
+                      ty="symmetryPlane"
+                fout.write("\t\t"+fn+"\n\t\t{\n\t\t\tnewName "+fn+";\n\t\t\ttype "+ty+";\n")
+            fout.write("\t\t}\n\t}\n}")
+        else:
+            fout.write(line+"\n")
+fout.close()
 
