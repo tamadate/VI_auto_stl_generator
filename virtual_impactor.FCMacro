@@ -7,9 +7,9 @@
 import math
 import numpy as np
 W=0.014*25.4
-jetDistance=W*2 # 2W
+jetDistance=W*1.5 # 2W
 inletRadius=2
-inletAngle=45/180.0*math.pi	#30deg
+inletAngle=52.5/180.0*math.pi	#30deg
 nozzleRadius=W*0.5	# 0.5W
 curveInletNozzle=nozzleRadius	
 nozzleLength=nozzleRadius*5	# 5W
@@ -26,13 +26,13 @@ curveMajorOutlet=majorCavityOutletWidth
 recievingRadius=nozzleRadius*1.4
 curveRecieving=0.5*W	#0.5W
 recievingLength=nozzleRadius*2	#2w
-recievingDownAngle=30/180.0*math.pi	#30deg
-recievingDownRadius=recievingRadius*3
-recievingDownLength=recievingDownRadius*4
+recievingDownAngle=50/180.0*math.pi	#30deg
+recievingDownRadius=recievingRadius*5
+recievingDownLength=recievingDownRadius*10
 
-expansion=False
+expansion=True
 
-secondstage=True
+secondstage=False
 interRadius=1	
 firstStageAngle=22.5/180.0*math.pi	
 firstStageHeight=interRadius*1
@@ -84,7 +84,6 @@ if(secondstage):
 	App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
 	r0=App.Vector(r1[0],r1[1],r1[2])
 	faceName.append("firstConv")
-
 	#inlet 1st stage straight part
 	r1=r0-App.Vector(0,firstStageHeight,0)
 	App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
@@ -94,7 +93,7 @@ if(secondstage):
 
 #inlet conversion
 r1[0]=(1-math.cos(inletAngle))*curveInletNozzle+nozzleRadius
-r1[1]=r0[1]-(interRadius-r1[0])/math.tan(inletAngle)
+r1[1]=-(r0[0]-r1[0])/math.tan(inletAngle)
 App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
 r0=App.Vector(r1[0],r1[1],r1[2])
 faceName.append("conversion")
@@ -363,7 +362,7 @@ with open(dir+"Base/meshDict") as f:
                       ty="patch"
                 if(fn=="axis"):
                       ty="symmetryPlane"
-                fout.write("\t\t"+fn+"\n\t\t{\n\t\t\tnewName "+fn+";\n\t\t\ttype "+ty+";\n")
+                fout.write("\t\t"+fn+"\n\t\t{\n\t\t\tnewName "+fn+";\n\t\t\ttype "+ty+";\n\t\t}\n")
             fout.write("\t\t}\n\t}\n}")
         else:
             fout.write(line+"\n")
