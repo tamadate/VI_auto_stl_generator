@@ -7,35 +7,40 @@
 import math
 import numpy as np
 W=0.014*25.4
-jetDistance=W*1.5 						# 2W
+jetDistance=W*1 						# 2W
 inletRadius=2
-inletAngle=20/180.0*math.pi				#30deg
+inletAngle=60/180.0*math.pi				#30deg
 nozzleRadius=W*0.5						# 0.5W
 curveInletNozzle=nozzleRadius	
-nozzleLength=nozzleRadius*5				# 5W
+nozzleLength=nozzleRadius*1				# 5W
 nozzleThickness=nozzleRadius
-nozzleOutAngle=30/180.0*math.pi
-majorCavityTop=4*W						# 4W
-majorCavitySize=3
-majorCavityBottom=3*W					#3W
-majorCavityOutletLenght=4
-majorCavityOutletWidth=1
-recievingTubeOutAngle=60/180.0*math.pi		# 45
+nozzleOutAngle=45/180.0*math.pi
+majorCavityTop=1*W						# 4W
+majorCavitySize=1
+majorCavityBottom=1*W					#3W
+majorCavityOutletLenght=2
+majorCavityOutletWidth=0.5
+recievingTubeOutAngle=45/180.0*math.pi
 recievingTubeThickness=nozzleRadius
 curveMajorOutlet=majorCavityOutletWidth
-recievingRadius=nozzleRadius*1.4			# 1.4 R = r
-curveRecieving=0.5*W						# 0.5W
-recievingLength=nozzleRadius*2				# 2 r
-recievingDownAngle=70/180.0*math.pi		# 30deg
-recievingDownRadius=recievingRadius*18		# 3 r
-recievingDownLength=recievingDownRadius*6	# 12 r
+recievingRadius=nozzleRadius*0.7
+curveRecieving=0.5*W						#0.5W
+recievingLength=nozzleRadius*2				#2w
+recievingDownAngle=30/180.0*math.pi		#30deg
+recievingDownRadius=recievingRadius*3		# 4W
+recievingDownLength=recievingDownRadius*1	#4W'
 
-expansion=True
+expansion=False
 
 secondstage=False
 interRadius=1	
 firstStageAngle=22.5/180.0*math.pi	
 firstStageHeight=interRadius*1
+
+inletCenter=False
+IC_radius=(0.1**0.5)*inletRadius
+IC_thickness=W*0.1
+IC_length=IC_radius*3
 
 dir="/home/tama3rdgen/git/VI_auto_stl_generator/" 	# working directory
 saveAs=dir+"testDesign.FCStd"			# file name
@@ -70,8 +75,34 @@ if(curveRecieving*recievingTubeThickness*2<recievingTubeThickness*recievingTubeT
 
 faceName=[]
 
-#inlet 1st stage
 r0=App.Vector(0,0,0)
+
+if(inletCenter):
+	a=inletRadius-IC_thickness-IC_length*np.tan(inletAngle)
+	a=0.1**0.5*a
+
+	r1=App.Vector(IC_radius,0,0)
+	App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
+	r0=App.Vector(r1[0],r1[1],r1[2])
+	faceName.append("inletCenter")
+
+	r1=App.Vector(a,-IC_length,0)
+	App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
+	r0=App.Vector(r1[0],r1[1],r1[2])
+	faceName.append("inletCenterIn")
+
+	r1=r0+App.Vector(IC_thickness,0,0)
+	App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
+	r0=App.Vector(r1[0],r1[1],r1[2])
+	faceName.append("inletCenterBottom")
+
+	r1=App.Vector(IC_radius+IC_thickness,0,0)
+	App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
+	r0=App.Vector(r1[0],r1[1],r1[2])
+	faceName.append("inletCenterOut")
+
+
+#inlet 1st stage
 r1=App.Vector(inletRadius,0,0)
 App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
 r0=App.Vector(r1[0],r1[1],r1[2])
@@ -225,6 +256,7 @@ App.getDocument('Unnamed').recompute()
 Gui.getDocument("Unnamed").getObject("Sketch").Visibility=True
 nface=len(faceName)
 
+
 print("Sketching done!!!!!!!!!!!!!!")
 
 
@@ -358,7 +390,7 @@ with open(dir+"Base/meshDict") as f:
             fout.write("{\n\tnewPatchNames\n\t{\n")
             for fn in faceName:
                 ty="wall"
-                if(fn=="inlet" or fn=="majorOutlet" or fn=="majorOutlet"):
+                if(fn=="inlet" or fn=="majorOutlet" or fn=="majorOutlet" or fn==""):
                       ty="patch"
                 if(fn=="axis"):
                       ty="symmetryPlane"
