@@ -395,7 +395,7 @@ with open(dir+"Base/meshDict") as f:
                 if(fn=="axis"):
                       ty="symmetryPlane"
                 fout.write("\t\t"+fn+"\n\t\t{\n\t\t\tnewName "+fn+";\n\t\t\ttype "+ty+";\n\t\t}\n")
-            fout.write("\t\t}\n\t}\n}")
+            fout.write("\t}\n}")
         else:
             fout.write(line+"\n")
 fout.close()

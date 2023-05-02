@@ -7,31 +7,31 @@
 import math
 import numpy as np
 W=0.014*25.4
-jetDistance=W*1.5 						# 2W
-inletRadius=2
-inletAngle=20/180.0*math.pi				#30deg
-nozzleRadius=W*0.5						# 0.5W
-curveInletNozzle=nozzleRadius	
-nozzleLength=nozzleRadius*5				# 5W
-nozzleThickness=nozzleRadius
-nozzleOutAngle=30/180.0*math.pi
-majorCavityTop=4*W						# 4W
-majorCavitySize=3
-majorCavityBottom=3*W					#3W
+jetDistance=0.021*25.4 						
+inletRadius=0.1*25.4
+inletAngle=17.5/180.0*math.pi				
+nozzleRadius=W*0.5						
+curveInletNozzle=nozzleRadius	# check
+nozzleLength=0.06*25.4
+nozzleThickness=0.012*25.4
+nozzleOutAngle=60/180.0*math.pi
+majorCavityTop=0.08*25.4
+majorCavitySize=5
+majorCavityBottom=0.08*25.4
 majorCavityOutletLenght=4
 majorCavityOutletWidth=1
-recievingTubeOutAngle=60/180.0*math.pi		# 45
-recievingTubeThickness=nozzleRadius
-curveMajorOutlet=majorCavityOutletWidth
+recievingTubeOutAngle=53.7/180.0*math.pi		
+recievingTubeThickness=0.009*25.4
+curveMajorOutlet=majorCavityOutletWidth*0.25
 recievingRadius=nozzleRadius*1.4			# 1.4 R = r
-curveRecieving=0.5*W						# 0.5W
-recievingLength=nozzleRadius*2				# 2 r
-recievingDownAngle=30/180.0*math.pi		# 30deg
-recievingDownRadius=recievingRadius*3		# 3 r
-recievingDownLength=recievingDownRadius*4	# 12 r
+curveRecieving=0.005*25.4
+recievingLength=0.028*25.4
+recievingDownAngle=30/180.0*math.pi		
+recievingDownRadius=0.05*25.4
+recievingDownLength=0.1*25.4
 
 ## Expansion at downstream of the recieving tube?
-expansion=False
+expansion=True
 
 ## Two stage inlet?
 secondstage=False
@@ -40,10 +40,13 @@ firstStageAngle=22.5/180.0*math.pi
 firstStageHeight=interRadius*1
 
 ## Inlet tube?
-inletTube=True
+inletTube=False
 LinTube=inletRadius*5
 
-
+## restrict?
+restAngle=17.5/180.0*math.pi
+restRadius=0.006*25.4
+restLength=0.023*25.4
 
 ## working directory
 dir="/home/tama3rdgen/git/VI_auto_stl_generator/" 	# !!!!!!!!!!!!!!!!!! This section is nessesarry to change to fit your environment !!!!!!!!!!!!!!!!!!
@@ -218,6 +221,19 @@ App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
 r0=App.Vector(r1[0],r1[1],r1[2])
 faceName.append("minor_wall")
 
+#restrict tube conversion
+r1[0]=restRadius
+r1[1]-=(r0[0]-r1[0])/math.tan(restAngle)
+App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
+r0=App.Vector(r1[0],r1[1],r1[2])
+faceName.append("restConversion")
+
+#restrict tube
+r1=r0-App.Vector(0,restLength,0)
+App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
+r0=App.Vector(r1[0],r1[1],r1[2])
+faceName.append("restNozzle")
+
 #minor outlet
 r1=App.Vector(0,r0[1],r0[2])
 App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
@@ -229,6 +245,7 @@ r1=App.Vector(0,0,0)
 App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
 r0=App.Vector(r1[0],r1[1],r1[2])
 faceName.append("axis")
+
 
 Gui.activateWorkbench('PartDesignWorkbench')
 App.getDocument('Unnamed').recompute()

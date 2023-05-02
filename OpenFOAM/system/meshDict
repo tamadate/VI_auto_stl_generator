@@ -110,6 +110,16 @@ renameBoundary
 			newName minor_wall;
 			type wall;
 		}
+		restConversion
+		{
+			newName restConversion;
+			type wall;
+		}
+		restNozzle
+		{
+			newName restNozzle;
+			type wall;
+		}
 		minorOutlet
 		{
 			newName minorOutlet;
@@ -119,7 +129,6 @@ renameBoundary
 		{
 			newName axis;
 			type symmetryPlane;
-		}
 		}
 	}
 }
