@@ -1,53 +1,20 @@
 ### This code generate virtual impactor geometroy with "stl" extention
-### First version was created Apr/1/2023 || Final editing Apr/9/2023
+### First version was created Apr/1/2023 || Final editing May/2/2023
 ### Edited by Dr. Tomoya Tamadate || University of Minnesota 
 ### Tested with Linux Mint 20.3 Cinnamon and FreeCAD 0.20.1
 
 ## You can set all parameters here (see ...)
 import math
 import numpy as np
-W=0.014*25.4
-jetDistance=0.021*25.4 						
-inletRadius=0.1*25.4
-inletAngle=17.5/180.0*math.pi				
-nozzleRadius=W*0.5						
-curveInletNozzle=nozzleRadius	# check
-nozzleLength=0.06*25.4
-nozzleThickness=0.012*25.4
-nozzleOutAngle=60/180.0*math.pi
-majorCavityTop=0.08*25.4
-majorCavitySize=5
-majorCavityBottom=0.08*25.4
-majorCavityOutletLenght=4
-majorCavityOutletWidth=1
-recievingTubeOutAngle=53.7/180.0*math.pi		
-recievingTubeThickness=0.009*25.4
-curveMajorOutlet=majorCavityOutletWidth*0.25
-recievingRadius=nozzleRadius*1.4			# 1.4 R = r
-curveRecieving=0.005*25.4
-recievingLength=0.028*25.4
-recievingDownAngle=30/180.0*math.pi		
-recievingDownRadius=0.05*25.4
-recievingDownLength=0.1*25.4
-
-## Expansion at downstream of the recieving tube?
-expansion=True
-
-## Two stage inlet?
-secondstage=False
-interRadius=1	
-firstStageAngle=22.5/180.0*math.pi	
-firstStageHeight=interRadius*1
-
-## Inlet tube?
-inletTube=False
-LinTube=inletRadius*5
-
-## restrict?
-restrict=False
-restAngle=17.5/180.0*math.pi
-restRadius=0.006*25.4
-restLength=0.023*25.4
+W=0.35 #0.014*25.4
+jetDistance=W*1.5 							# 2W
+inletRadius=2
+inletAngle=20/180.0*math.pi				#30deg
+nozzleRadius=W*0.5						# 0.5W
+curveInletNozzle=nozzleRadius	
+nozzleLength=nozzleRadius*5				# 5W
+openRadius=50
+inletRound=0.5
 
 ## working directory
 dir="/home/tama3rdgen/git/VI_auto_stl_generator/" 	# !!!!!!!!!!!!!!!!!! This section is nessesarry to change to fit your environment !!!!!!!!!!!!!!!!!!
@@ -73,39 +40,17 @@ Gui.activateWorkbench('SketcherWorkbench')
 import PartDesignGui
 
 #----------------------------------------------------Draw sketching-----------------------------------------------------------------------------------------------#
-if(curveRecieving*recievingTubeThickness*2<recievingTubeThickness*recievingTubeThickness):
-  print("error")
-
 faceName=[]
 
-#inlet 1st stage
-r0=App.Vector(0,0,0)
-r1=App.Vector(inletRadius,0,0)
-App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
-r0=App.Vector(r1[0],r1[1],r1[2])
-faceName.append("inlet")
-
-if(inletTube):
-	r1=r0-App.Vector(0,LinTube,0)
-	App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
-	r0=App.Vector(r1[0],r1[1],r1[2])
-	faceName.append("inletTube")
-
-if(secondstage):
-	#inlet 1st stage conversion
-	dR=inletRadius-interRadius
-	r1=r0-App.Vector(dR,dR/math.tan(firstStageAngle),0)
-	App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
-	r0=App.Vector(r1[0],r1[1],r1[2])
-	faceName.append("firstConv")
-	#inlet 1st stage straight part
-	r1=r0-App.Vector(0,firstStageHeight,0)
-	App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
-	r0=App.Vector(r1[0],r1[1],r1[2])
-	faceName.append("firstStraight")
-
+#inlet round
+r0=App.Vector(inletRadius,0,0)
+center=r0+App.Vector(inletRound*math.cos(inletAngle),-inletRound*math.sin(inletAngle),0)
+App.ActiveDocument.Sketch.addGeometry(Part.ArcOfCircle(Part.Circle(center,App.Vector(0,0,1),inletRound),math.pi*0.5,math.pi-inletAngle),False)
+faceName.append("inletRound")
 
 #inlet conversion
+r0=App.Vector(inletRadius,0,0)
+r1=App.Vector(0,0,0)
 r1[0]=(1-math.cos(inletAngle))*curveInletNozzle+nozzleRadius
 r1[1]-=(r0[0]-r1[0])/math.tan(inletAngle)
 App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
@@ -126,128 +71,31 @@ App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
 r0=App.Vector(r1[0],r1[1],r1[2])
 faceName.append("nozzle")
 
-#nozzle bottome face
-r1=r0+App.Vector(nozzleThickness,0,0)
+#nozzle outlet
+r1=r0-App.Vector(nozzleRadius,0,0)
 App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
 r0=App.Vector(r1[0],r1[1],r1[2])
-faceName.append("nozzle_bottom")
-
-#outsize of the nozzle
-r1=r0+App.Vector(majorCavityTop/math.tan(nozzleOutAngle),majorCavityTop,0)
-App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
-r0=App.Vector(r1[0],r1[1],r1[2])
-faceName.append("nozzle_out")
-
-#top of major cavity
-r1=r0+App.Vector(majorCavitySize,0,0)
-App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
-r0=App.Vector(r1[0],r1[1],r1[2])
-faceName.append("major_top")
-
-#side wall of major cavity
-r1=r0-App.Vector(0,majorCavityTop+jetDistance+majorCavityBottom,0)
-App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
-r0=App.Vector(r1[0],r1[1],r1[2])
-faceName.append("major_side")
-
-#outlet wall (outside)
-r1=r0-App.Vector(0,majorCavityOutletLenght,0)
-App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
-r0=App.Vector(r1[0],r1[1],r1[2])
-faceName.append("majorOut_out")
-
-#major outlet
-r1=r0-App.Vector(majorCavityOutletWidth,0,0)
-App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
-r0=App.Vector(r1[0],r1[1],r1[2])
-faceName.append("majorOutlet")
-
-#outlet wall (inside)
-r1=r0+App.Vector(0,majorCavityOutletLenght-curveMajorOutlet,0)
-App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
-r0=App.Vector(r1[0],r1[1],r1[2])
-faceName.append("majorOut_in")
-
-#curvature major outlet to major cavity bottom
-r1=r0+App.Vector(-curveMajorOutlet,curveMajorOutlet,0)
-center=r0-App.Vector(curveMajorOutlet,0,0)
-App.ActiveDocument.Sketch.addGeometry(Part.ArcOfCircle(Part.Circle(center,App.Vector(0,0,1),curveMajorOutlet),0,math.pi*0.5),False)
-r0=App.Vector(r1[0],r1[1],r1[2])
-faceName.append("majorOut_curve")
-
-#bottom of major cavity
-r1=App.Vector(recievingTubeThickness+recievingRadius+majorCavityBottom*math.tan(recievingTubeOutAngle),r0[1],0)
-App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
-r0=App.Vector(r1[0],r1[1],r1[2])
-faceName.append("major_bottom")
-
-#outside of recieving tube
-r1=r0+App.Vector(-majorCavityBottom*math.tan(recievingTubeOutAngle),majorCavityBottom,0)
-App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
-r0=App.Vector(r1[0],r1[1],r1[2])
-faceName.append("recieving_out")
-
-#recieving tube top surface (curved)
-th=math.asin((curveRecieving-recievingTubeThickness)/curveRecieving)
-h=curveRecieving*math.cos(th)
-r1=r0-App.Vector(recievingTubeThickness,h,0)
-center=r1+App.Vector(curveRecieving,0,0)
-angle=math.acos((curveRecieving-recievingTubeThickness)/curveRecieving)
-App.ActiveDocument.Sketch.addGeometry(Part.ArcOfCircle(Part.Circle(center,App.Vector(0,0,1),curveRecieving),math.pi*0.5+th,math.pi),False)
-r0=App.Vector(r1[0],r1[1],r1[2])
-faceName.append("recieving_top")
-
-#recieving tube
-r1=r0-App.Vector(0,recievingLength,0)
-App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
-r0=App.Vector(r1[0],r1[1],r1[2])
-faceName.append("recieving")
-
-if(expansion):
-	#expansion part at downstream of recieving tube
-	r1=r0+App.Vector(recievingDownRadius-recievingRadius,-(recievingDownRadius-recievingRadius)/math.tan(recievingDownAngle),0)
-	App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
-	r0=App.Vector(r1[0],r1[1],r1[2])
-else:
-	#expansion part at downstream of recieving tube
-	r1=r0+App.Vector(0,-(recievingDownRadius-recievingRadius)/math.tan(recievingDownAngle),0)
-	App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
-	r0=App.Vector(r1[0],r1[1],r1[2])
-
-faceName.append("recieving_expand")
-
-#minor outlet side wall
-r1=r0-App.Vector(0,recievingDownLength,0)
-App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
-r0=App.Vector(r1[0],r1[1],r1[2])
-faceName.append("minor_wall")
-
-if(restrict):
-	#restrict tube conversion
-	r1[0]=restRadius
-	r1[1]-=(r0[0]-r1[0])/math.tan(restAngle)
-	App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
-	r0=App.Vector(r1[0],r1[1],r1[2])
-	faceName.append("restConversion")
-	
-	#restrict tube
-	r1=r0-App.Vector(0,restLength,0)
-	App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
-	r0=App.Vector(r1[0],r1[1],r1[2])
-	faceName.append("restNozzle")
-
-#minor outlet
-r1=App.Vector(0,r0[1],r0[2])
-App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
-r0=App.Vector(r1[0],r1[1],r1[2])
-faceName.append("minorOutlet")
+faceName.append("nozzleOutlet")
 
 #axis
-r1=App.Vector(0,0,0)
+offset=inletRound*(1-math.sin(inletAngle))
+r1=App.Vector(0,openRadius+offset,0)
 App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
 r0=App.Vector(r1[0],r1[1],r1[2])
 faceName.append("axis")
 
+#inlet
+center=App.Vector(0,offset,0)
+App.ActiveDocument.Sketch.addGeometry(Part.ArcOfCircle(Part.Circle(center,App.Vector(0,0,1),openRadius),0,math.pi*0.5),False)
+r0=App.Vector(openRadius,offset,0)
+faceName.append("inlet")
+
+#inlet wall
+r1=App.Vector(inletRadius,0,0)
+r1=r1+App.Vector(inletRound*math.cos(inletAngle),offset,0)
+App.ActiveDocument.Sketch.addGeometry(Part.LineSegment(r0,r1),False)
+r0=App.Vector(r1[0],r1[1],r1[2])
+faceName.append("inletWall")
 
 Gui.activateWorkbench('PartDesignWorkbench')
 App.getDocument('Unnamed').recompute()

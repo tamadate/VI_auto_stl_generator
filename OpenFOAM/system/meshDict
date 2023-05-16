@@ -20,10 +20,10 @@ renameBoundary
 {
 	newPatchNames
 	{
-		inlet
+		inletRound
 		{
-			newName inlet;
-			type patch;
+			newName inletRound;
+			type wall;
 		}
 		conversion
 		{
@@ -40,95 +40,25 @@ renameBoundary
 			newName nozzle;
 			type wall;
 		}
-		nozzle_bottom
+		nozzleOutlet
 		{
-			newName nozzle_bottom;
-			type wall;
-		}
-		nozzle_out
-		{
-			newName nozzle_out;
-			type wall;
-		}
-		major_top
-		{
-			newName major_top;
-			type wall;
-		}
-		major_side
-		{
-			newName major_side;
-			type wall;
-		}
-		majorOut_out
-		{
-			newName majorOut_out;
-			type wall;
-		}
-		majorOutlet
-		{
-			newName majorOutlet;
-			type patch;
-		}
-		majorOut_in
-		{
-			newName majorOut_in;
-			type wall;
-		}
-		majorOut_curve
-		{
-			newName majorOut_curve;
-			type wall;
-		}
-		major_bottom
-		{
-			newName major_bottom;
-			type wall;
-		}
-		recieving_out
-		{
-			newName recieving_out;
-			type wall;
-		}
-		recieving_top
-		{
-			newName recieving_top;
-			type wall;
-		}
-		recieving
-		{
-			newName recieving;
-			type wall;
-		}
-		recieving_expand
-		{
-			newName recieving_expand;
-			type wall;
-		}
-		minor_wall
-		{
-			newName minor_wall;
-			type wall;
-		}
-		restConversion
-		{
-			newName restConversion;
-			type wall;
-		}
-		restNozzle
-		{
-			newName restNozzle;
-			type wall;
-		}
-		minorOutlet
-		{
-			newName minorOutlet;
+			newName nozzleOutlet;
 			type wall;
 		}
 		axis
 		{
 			newName axis;
 			type symmetryPlane;
+		}
+		inlet
+		{
+			newName inlet;
+			type patch;
+		}
+		inletWall
+		{
+			newName inletWall;
+			type wall;
 		}
 	}
 }
